@@ -49,12 +49,8 @@ class HTTPClient(object):
         self._pool = HTTPConnectionPool(reactor, persistent=True)
         self._pool.maxPersistentPerHost = 10
 
-        if cert_file:
-            cert = ssl.Certificate.loadPEM(open(cert_file).read())
-            policy = BrowserLikePolicyForHTTPS(cert)
-        else:
-            # trust the system's CAs
-            policy = BrowserLikePolicyForHTTPS()
+        cert = ssl.Certificate.loadPEM(open(cert_file).read()) if cert_file else None
+        policy = BrowserLikePolicyForHTTPS(cert)
 
         self._agent = Agent(
             reactor,
