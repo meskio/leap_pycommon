@@ -18,16 +18,10 @@
 Twisted HTTP/HTTPS client.
 """
 
-import os
-
 from zope.interface import implements
 
-from OpenSSL.crypto import load_certificate
-from OpenSSL.crypto import FILETYPE_PEM
-
 from twisted.internet import reactor
-from twisted.internet.ssl import ClientContextFactory
-from twisted.internet.ssl import CertificateOptions
+from twisted.internet import ssl
 from twisted.internet.defer import succeed
 
 from twisted.web.client import Agent
@@ -56,32 +50,16 @@ class HTTPClient(object):
         self._pool.maxPersistentPerHost = 10
 
         if cert_file:
-            cert = self._load_cert(cert_file)
-            self._agent = Agent(
-                reactor,
-                HTTPClient.ClientContextFactory(cert),
-                pool=self._pool)
+            cert = ssl.Certificate.loadPEM(open(cert_file).read())
+            policy = BrowserLikePolicyForHTTPS(cert)
         else:
             # trust the system's CAs
-            self._agent = Agent(
-                reactor,
-                BrowserLikePolicyForHTTPS(),
-                pool=self._pool)
+            policy = BrowserLikePolicyForHTTPS()
 
-    def _load_cert(self, cert_file):
-        """
-        Load a X509 certificate from a file.
-
-        :param cert_file: The path to the certificate file.
-        :type cert_file: str
-
-        :return: The X509 certificate.
-        :rtype: OpenSSL.crypto.X509
-        """
-        if os.path.exists(cert_file):
-            with open(cert_file) as f:
-                data = f.read()
-                return load_certificate(FILETYPE_PEM, data)
+        self._agent = Agent(
+            reactor,
+            policy,
+            pool=self._pool)
 
     def request(self, url, method='GET', body=None, headers={}):
         """
@@ -105,25 +83,6 @@ class HTTPClient(object):
             method, url, headers=Headers(headers), bodyProducer=body)
         d.addCallback(readBody)
         return d
-
-    class ClientContextFactory(ClientContextFactory):
-        """
-        A context factory that will verify the server's certificate against a
-        given CA certificate.
-        """
-
-        def __init__(self, cacert):
-            """
-            Initialize the context factory.
-
-            :param cacert: The CA certificate.
-            :type cacert: OpenSSL.crypto.X509
-            """
-            self._cacert = cacert
-
-        def getContext(self, hostname, port):
-            opts = CertificateOptions(verify=True, caCerts=[self._cacert])
-            return opts.getContext()
 
     class StringBodyProducer(object):
         """
