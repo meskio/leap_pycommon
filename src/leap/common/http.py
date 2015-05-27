@@ -31,6 +31,9 @@ from twisted.web.client import BrowserLikePolicyForHTTPS
 from twisted.web.http_headers import Headers
 from twisted.web.iweb import IBodyProducer
 
+_pool = HTTPConnectionPool(reactor, persistent=True)
+_pool.maxPersistentPerHost = 10
+
 
 class HTTPClient(object):
     """
@@ -46,8 +49,6 @@ class HTTPClient(object):
                           system's CAs will be used.
         :type cert_file: str
         """
-        self._pool = HTTPConnectionPool(reactor, persistent=True)
-        self._pool.maxPersistentPerHost = 10
 
         cert = ssl.Certificate.loadPEM(open(cert_file).read()) if cert_file else None
         policy = BrowserLikePolicyForHTTPS(cert)
@@ -55,7 +56,7 @@ class HTTPClient(object):
         self._agent = Agent(
             reactor,
             policy,
-            pool=self._pool)
+            pool=_pool)
 
     def request(self, url, method='GET', body=None, headers={}):
         """
