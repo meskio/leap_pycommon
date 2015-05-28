@@ -1,11 +1,7 @@
 jsonschema  #<=0.8 -- are we done with this conflict?
 dirspec
 pyopenssl
-# needed for propper hostname identification, see http://twistedmatrix.com/documents/current/core/howto/ssl.html
-service_identity
 python-dateutil
-Twisted>=12.1
-zope.interface
 pyzmq
 txzmq
 

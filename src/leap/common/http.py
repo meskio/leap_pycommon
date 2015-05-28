@@ -18,6 +18,18 @@
 Twisted HTTP/HTTPS client.
 """
 
+try:
+    import twisted
+except ImportError:
+    print "*******"
+    print "Twisted is needed to use leap.common.http module"
+    print ""
+    print "Install the extra requirement of the package:"
+    print "$ pip install leap.common[Twisted]"
+    import sys
+    sys.exit(1)
+
+
 from leap.common.certs import get_compatible_ssl_context_factory
 
 from zope.interface import implements
