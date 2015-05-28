@@ -25,8 +25,6 @@ import logging
 
 from OpenSSL import crypto
 from dateutil.parser import parse as dateparse
-from twisted.internet.ssl import ClientContextFactory
-from twisted.internet.ssl import CertificateOptions
 
 from leap.common.check import leap_assert
 
@@ -185,7 +183,7 @@ def should_redownload(certfile, now=time.gmtime):
 def get_compatible_ssl_context_factory(cert_path=None):
     import twisted
     cert = None
-    if twisted.version.base() > '14.1':
+    if twisted.version.base() > '14.0.1':
         from twisted.web.client import BrowserLikePolicyForHTTPS
         from twisted.internet import ssl
         if cert_path:
@@ -193,30 +191,7 @@ def get_compatible_ssl_context_factory(cert_path=None):
         policy = BrowserLikePolicyForHTTPS(cert)
         return policy
     else:
-        if cert_path:
-            with open(cert_path) as cert_file:
-                cert = get_cert_from_string(cert_file.read())
-        return ClientContextFactory(cert)
-
-
-class ClientContextFactory(ClientContextFactory):
-        """
-        A context factory that will verify the server's certificate against a
-        given CA certificate.
-        """
-
-        def __init__(self, cacert):
-            """
-            Initialize the context factory.
-            :param cacert: The CA certificate.
-            :type cacert: OpenSSL.crypto.X509
-            """
-            self._cacert = cacert
-
-        def getContext(self, hostname, port):
-            """
-            Verify certificate against hostname
-            # To be implemented
-            """
-            opts = CertificateOptions(verify=True, caCerts=[self._cacert])
-            return opts.getContext()
+        raise Exception(("""
+            Twisted 14.0.2 is needed in order to have secure Client Web SSL Contexts, not %s
+            See: http://twistedmatrix.com/trac/ticket/7647
+            """) % (twisted.version.base()))
