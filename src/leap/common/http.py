@@ -31,8 +31,13 @@ from twisted.web.client import BrowserLikePolicyForHTTPS
 from twisted.web.http_headers import Headers
 from twisted.web.iweb import IBodyProducer
 
-_pool = HTTPConnectionPool(reactor, persistent=True)
-_pool.maxPersistentPerHost = 10
+
+def createPool(maxPersistentPerHost=10, persistent=True):
+    pool = HTTPConnectionPool(reactor, persistent)
+    pool.maxPersistentPerHost = maxPersistentPerHost
+    return pool
+
+_pool = createPool()
 
 
 class HTTPClient(object):
@@ -41,7 +46,7 @@ class HTTPClient(object):
     certificate.
     """
 
-    def __init__(self, cert_file=None):
+    def __init__(self, cert_file=None, pool=_pool):
         """
         Init the HTTP client
 
@@ -56,7 +61,7 @@ class HTTPClient(object):
         self._agent = Agent(
             reactor,
             policy,
-            pool=_pool)
+            pool=pool)
 
     def request(self, url, method='GET', body=None, headers={}):
         """
