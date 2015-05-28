@@ -18,16 +18,16 @@
 Twisted HTTP/HTTPS client.
 """
 
+from leap.common.certs import get_compatible_ssl_context_factory
+
 from zope.interface import implements
 
 from twisted.internet import reactor
-from twisted.internet import ssl
 from twisted.internet.defer import succeed
 
 from twisted.web.client import Agent
 from twisted.web.client import HTTPConnectionPool
 from twisted.web.client import readBody
-from twisted.web.client import BrowserLikePolicyForHTTPS
 from twisted.web.http_headers import Headers
 from twisted.web.iweb import IBodyProducer
 
@@ -55,8 +55,7 @@ class HTTPClient(object):
         :type cert_file: str
         """
 
-        cert = ssl.Certificate.loadPEM(open(cert_file).read()) if cert_file else None
-        policy = BrowserLikePolicyForHTTPS(cert)
+        policy = get_compatible_ssl_context_factory(cert_file)
 
         self._agent = Agent(
             reactor,
