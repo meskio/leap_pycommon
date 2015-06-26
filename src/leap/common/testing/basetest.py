@@ -77,8 +77,8 @@ class BaseLeapTest(unittest.TestCase):
             emit_addr="tcp://127.0.0.1:0",
             reg_addr="tcp://127.0.0.1:0")
         events_client.configure_client(
-            emit_addr="tcp://127.0.0.1:%d" % cls._server.pull_port,
-            reg_addr="tcp://127.0.0.1:%d" % cls._server.pub_port)
+            emit_addr="tcp://127.0.0.1:%s" % cls._server.pull_port,
+            reg_addr="tcp://127.0.0.1:%s" % cls._server.pub_port)
 
     @classmethod
     def tearDownEnv(cls):

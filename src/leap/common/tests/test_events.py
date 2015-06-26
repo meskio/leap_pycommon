@@ -1,4 +1,4 @@
-## -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 # test_events.py
 # Copyright (C) 2013 LEAP
 #
@@ -41,8 +41,8 @@ class EventsGenericClientTestCase(object):
             emit_addr="tcp://127.0.0.1:0",
             reg_addr="tcp://127.0.0.1:0")
         self._client.configure_client(
-            emit_addr="tcp://127.0.0.1:%d" % self._server.pull_port,
-            reg_addr="tcp://127.0.0.1:%d" % self._server.pub_port)
+            emit_addr="tcp://127.0.0.1:%s" % self._server.pull_port,
+            reg_addr="tcp://127.0.0.1:%s" % self._server.pub_port)
 
     def tearDown(self):
         self._client.shutdown()
