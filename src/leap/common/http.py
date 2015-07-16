@@ -36,6 +36,7 @@ from zope.interface import implements
 
 from twisted.internet import reactor
 from twisted.internet import defer
+from twisted.python.failure import Failure
 
 from twisted.web.client import Agent
 from twisted.web.client import HTTPConnectionPool
@@ -241,9 +242,9 @@ class _HTTP11ClientProtocol(HTTP11ClientProtocol):
         if not self._parser._everReceivedData \
                 or self._last_buffer_len == buffer_len:
             self._giveUp(
-                defer.TimeoutError(
+                Failure(defer.TimeoutError(
                     "Getting %s took longer than %s seconds."
-                    % (request.absoluteURI, self._timeout)))
+                    % (request.absoluteURI, self._timeout))))
         else:
             self._last_buffer_len = buffer_len
 
